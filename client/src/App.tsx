@@ -83,7 +83,13 @@ function App() {
                     <td>{fmtDate(t.createdAt)}</td>
                     <td>{fmtDate(t.updatedAt)}</td>
                     <td><code>{t.filePath}</code></td>
-                    <td>{t.disabled ? 'True' : 'False'}</td>
+                    <td>
+                      {t.disabled ? (
+                        <span className="badge danger">True</span>
+                      ) : (
+                        <span className="badge ok">False</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
