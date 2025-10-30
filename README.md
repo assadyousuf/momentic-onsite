@@ -29,8 +29,4 @@ Run frontend
    npm run dev
 3) Open the URL it prints (typically `http://localhost:5173`).
 
-Notes
-- The backend counts the unexpanded number of steps per test (as requested).
-- Tests are discovered recursively under `tests/` by `*.test.yaml`.
-- The existing `server/` (Node) scaffold is unused; the live backend is FastAPI.
 
