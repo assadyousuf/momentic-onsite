@@ -43,3 +43,5 @@ temp/
 .venv/
 
 __pycache__/
+
+momentic_test_repo.egg-info/

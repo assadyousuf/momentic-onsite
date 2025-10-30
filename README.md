@@ -13,16 +13,26 @@ Backend (FastAPI)
   - `GET /api/tests/{id}/summary/stream` – SSE stream of AI summary tokens (cached via Redis)
 
 Run backend
-1) Create venv (optional):
-   python3 -m venv .venv && source .venv/bin/activate
-2) Install deps:
-   pip install -r backend/requirements.txt
-3) Start Mongo and Redis in Docker:
+Option A — with uv (fastest)
+1) Install uv (one time):
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+2) Create venv and activate:
+   uv venv && source .venv/bin/activate
+3) Install deps (reads backend/pyproject.toml):
+   uv sync -p python3
+4) Start Mongo and Redis in Docker:
    docker compose up -d mongo redis
-4) Ingest YAML tests/modules into Mongo (one-time, can re-run to refresh):
-   python backend/scripts/ingest_tests_to_mongo.py
-5) Start API:
-   uvicorn app.main:app --reload --port 8000 --app-dir backend
+5) Ingest YAML tests/modules into Mongo (one-time, can re-run to refresh):
+   uv run python backend/scripts/ingest_tests_to_mongo.py
+6) Start API:
+   uv run uvicorn app.main:app --reload --port 8000 --app-dir backend
+
+Option B — with pip (alternative)
+1) python3 -m venv .venv && source .venv/bin/activate
+2) pip install -r backend/requirements.txt
+3) docker compose up -d mongo redis
+4) python backend/scripts/ingest_tests_to_mongo.py
+5) uvicorn app.main:app --reload --port 8000 --app-dir backend
 
 Frontend (React + TS)
 - Path: `client/`

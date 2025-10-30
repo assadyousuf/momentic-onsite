@@ -14,6 +14,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 import redis
 import logging
+from contextlib import asynccontextmanager
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 TESTS_DIR = pathlib.Path(os.getenv("TESTS_DIR", ROOT / "tests"))
@@ -49,7 +50,22 @@ except Exception as e:
     redis_client = None
 
 
-app = FastAPI(title="Momentic Test Repo API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: nothing to do (clients are initialized at import time)
+    try:
+        yield
+    finally:
+        # Shutdown: flush Redis for a fresh cache on next start
+        if redis_client is not None:
+            try:
+                redis_client.flushdb()
+                logging.info("Flushed Redis DB on shutdown")
+            except Exception as e:
+                logging.error(f"Failed to flush Redis on shutdown: {e}")
+
+
+app = FastAPI(title="Momentic Test Repo API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -300,16 +316,14 @@ def _prefetch_summaries_for_ids(ids: List[str]):
         return
     if not ANTHROPIC_API_KEY:
         return
-    # Pull raw docs for only the requested IDs
     docs = list(
         tests_col.find({"id": {"$in": ids}}, projection={"_id": 0, "id": 1, "raw": 1})
     )
-    # Compute union of referenced moduleIds for this page
-    mids_union: set[str] = set()
+    module_ids_union: set[str] = set()
     for d in docs:
         raw = d.get("raw") or {}
-        mids_union.update(_extract_module_ids(raw))
-    modules_idx = _load_modules_index_from_mongo_by_ids(list(mids_union))
+        module_ids_union.update(_extract_module_ids(raw))
+    modules_idx = _load_modules_index_from_mongo_by_ids(list(module_ids_union))
     for d in docs:
         tid = d.get("id")
         raw = d.get("raw") or {}
@@ -373,9 +387,9 @@ def stream_test_summary(test_id: str):
     if not test_doc:
         raise HTTPException(status_code=404, detail="Test not found")
     test_doc = test_doc.get("raw") or {}
-    # Load only referenced modules
-    mids = _extract_module_ids(test_doc)
-    modules_idx = _load_modules_index_from_mongo_by_ids(mids)
+    # Load only referenced modules for this specific test
+    module_ids = _extract_module_ids(test_doc)
+    modules_idx = _load_modules_index_from_mongo_by_ids(module_ids)
     synopsis = _summarize_steps(test_doc, modules_idx)
     system, prompt = _build_summary_prompt(test_doc, synopsis)
     c_hash = _content_hash_from_docs(test_doc, modules_idx)
@@ -410,12 +424,4 @@ def stream_test_summary(test_id: str):
     return StreamingResponse(event_stream(), media_type="text/event-stream", headers=headers)
 
 
-@app.on_event("shutdown")
-def _flush_redis_on_shutdown():
-    # Ensure a fresh cache on next start
-    if redis_client is not None:
-        try:
-            redis_client.flushdb()
-            logging.info("Flushed Redis DB on shutdown")
-        except Exception as e:
-            logging.error(f"Failed to flush Redis on shutdown: {e}")
+ 
