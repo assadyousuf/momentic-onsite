@@ -69,7 +69,7 @@ function App() {
                   <th>Created</th>
                   <th>Updated</th>
                   <th>Path</th>
-                  <th>Disabled</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,9 +85,9 @@ function App() {
                     <td><code>{t.filePath}</code></td>
                     <td>
                       {t.disabled ? (
-                        <span className="badge danger">True</span>
+                        <span className="badge danger">Disabled</span>
                       ) : (
-                        <span className="badge ok">False</span>
+                        <span className="badge ok">Active</span>
                       )}
                     </td>
                   </tr>
