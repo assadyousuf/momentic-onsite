@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import './App.css'
 
@@ -14,6 +14,14 @@ type TestSummary = {
   disabled: boolean
 }
 
+type PaginatedTests = {
+  items: TestSummary[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
 function fmtDate(iso: string) {
   try {
     const d = new Date(iso)
@@ -25,6 +33,10 @@ function fmtDate(iso: string) {
 
 function App() {
   const [tests, setTests] = useState<TestSummary[] | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(20)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [summary, setSummary] = useState<string | null>(null)
@@ -35,21 +47,22 @@ function App() {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/tests')
+    fetch(`/api/tests?page=${page}&pageSize=${pageSize}`)
       .then(async (r) => {
         if (!r.ok) throw new Error(await r.text())
         return r.json()
       })
-      .then((data: TestSummary[]) => {
-        if (!cancelled) setTests(data)
+      .then((data: PaginatedTests) => {
+        if (cancelled) return
+        setTests(data.items)
+        setTotal(data.total)
+        setTotalPages(data.totalPages)
       })
       .catch((e) => !cancelled && setError(String(e)))
     return () => {
       cancelled = true
     }
-  }, [])
-
-  const total = useMemo(() => (tests ? tests.length : 0), [tests])
+  }, [page, pageSize])
 
   function selectTest(id?: string) {
     if (!id) return
@@ -102,10 +115,15 @@ function App() {
       {tests === null ? (
         <div className="loading">Loading tests…</div>
       ) : tests.length === 0 ? (
-        <div className="empty">No tests found in <code>tests/</code>.</div>
+        <div className="empty">No tests found in <code>db</code>.</div>
       ) : (
         <>
           <div className="summary">{total} tests</div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>Prev</button>
+            <span>Page {page} / {Math.max(1, totalPages)}</span>
+            <button onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))} disabled={page >= (totalPages || 1)}>Next</button>
+          </div>
           <div className="table-wrap">
             <table>
               <thead>
