@@ -1,4 +1,4 @@
-Momentic Onsite – Goal 1
+Momentic Onsite
 
 Overview
 - FastAPI backend exposes a simple API and streams AI summaries.
