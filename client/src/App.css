@@ -1,42 +1,75 @@
+:root {
+  color-scheme: light dark;
+}
+
 #root {
-  max-width: 1280px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+.sub {
+  opacity: 0.7;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.summary {
+  margin: 0.5rem 0 1rem;
+  opacity: 0.85;
 }
 
-.card {
-  padding: 2em;
+.table-wrap {
+  overflow-x: auto;
 }
 
-.read-the-docs {
-  color: #888;
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.6rem 0.6rem;
+  border-bottom: 1px solid rgba(127,127,127,0.2);
+  vertical-align: top;
+}
+
+thead th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: 600;
+}
+.desc {
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+.badge.ok {
+  background: rgba(0, 200, 0, 0.15);
+}
+.badge.danger {
+  background: rgba(200, 0, 0, 0.2);
+}
+
+.loading, .empty, .error {
+  padding: 1rem;
 }
