@@ -1,0 +1,46 @@
+fileType: momentic/module
+moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+name: notion-log-in
+description: "Log in to Notion"
+enabled: true
+parameters: []
+advanced: {}
+schemaVersion: 1.0.20
+steps:
+  - id: 05d9e119-28d0-439f-8521-1c1782ce0f8d
+    type: PRESET_ACTION
+    command:
+      id: c40a69c6-95e4-4222-98a5-97f38f73a831
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: the email input
+      value: henry+notiontest2@momentic.ai
+  - id: 8a31a4a7-3987-4049-b42e-5e3176229b63
+    type: PRESET_ACTION
+    command:
+      id: 6ce70c3f-bd06-4719-a720-a82b12b95c3b
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the continue button
+  - id: a5cd24b4-ee14-4618-9718-981625678f7e
+    type: PRESET_ACTION
+    command:
+      id: 8bef2ae5-957c-4733-98cb-a0d6ca2dc545
+      clearContent: true
+      type: TYPE
+      target:
+        type: description
+        elementDescriptor: "the password input "
+      # This is not a real password
+      value: asdfi-zhp!pzm@di1234
+  - id: d8d91411-fbad-4757-8f56-8ba9c776b00b
+    type: PRESET_ACTION
+    command:
+      id: 62d0e7e7-d602-4eb9-8229-e1aef90125ed
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the continue with password button

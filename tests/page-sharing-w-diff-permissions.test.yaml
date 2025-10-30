@@ -1,0 +1,95 @@
+fileType: momentic/test
+id: 0ce066ae-9a7f-4b50-bb43-f11eb8543d59
+name: page-sharing-w-diff-permissions
+description: "Verify that sharing a page with different permissions works correctly"
+baseUrl: https://www.notion.so/login
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 038a4530-3d69-4267-bce1-7b8b4d00b35c
+  - type: MODULE
+    moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+    id: bf656bf7-f3e3-426d-8d40-0df4df6795d7
+  - id: 24f19dfc-6d71-4d29-8aa7-9b4308aedd96
+    type: PRESET_ACTION
+    command:
+      id: 638b82d5-9f4a-499c-abe3-22e860f9357d
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: "{{ env.DOCUMENT_TITLE }}"
+  - id: 59f830b2-0445-4037-b700-e2f1799c430f
+    type: PRESET_ACTION
+    command:
+      id: 2283322f-1a96-4816-b2e1-8dac1ce2520b
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: share
+  - id: 46e042e1-b644-405d-9425-9edbdfc4af5b
+    type: PRESET_ACTION
+    command:
+      id: b0d6398f-f985-4f76-bb61-ec1de7d1161f
+      clearContent: true
+      delay: 0
+      type: TYPE
+      value: jeff+test@momentic.ai
+  - id: 0e7b9456-0f10-4cf8-bf88-4ec9aaa86171
+    type: PRESET_ACTION
+    command:
+      id: dc584125-7d14-48d4-a3b6-bdc94903f5c4
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: div containing "jeff+test@momentic.ai"
+  - id: e62e04e9-e9ce-4925-8b9a-0cbc1d0d22e5
+    type: PRESET_ACTION
+    command:
+      id: ebfa2a6a-3657-464e-8bf0-e5cf7f9cd352
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: full access
+  - id: ff15fcc0-1798-4edc-8c55-6652f9256ddc
+    type: PRESET_ACTION
+    command:
+      id: 11ba7752-47a6-48b2-97a4-abbdc9103643
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: can view
+  - id: d95782ab-6c93-436a-a183-bf4ec40b15e8
+    type: PRESET_ACTION
+    command:
+      id: b63e51e2-ff87-4d02-9f59-17b48a8db169
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: invite
+  - id: 7903fafb-08b3-4d7c-b1d8-31726a961a84
+    type: PRESET_ACTION
+    command:
+      id: f02d2f6d-f413-45f5-9b5d-2e031407b339
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: skip for now
+  - id: 8756d51e-c4c5-408b-8700-40a667ff58ff
+    type: PRESET_ACTION
+    command:
+      id: acd967bd-9434-4a44-b715-32e9abc28fd1
+      type: AI_ASSERTION
+      assertion: there is a message indicating sharing is complete

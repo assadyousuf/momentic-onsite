@@ -1,0 +1,102 @@
+fileType: momentic/test
+id: fb6c87c2-b2b9-4373-bc8d-ea1c66bb3ca8
+name: comment-on-text
+description: "Verify that comment tooltips work correctly"
+baseUrl: https://www.notion.so/login
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: b91af1a8-ae95-4fec-a9f7-a7406e629bf4
+  - id: ac4a4c27-2983-4ca6-9146-217b263cc4a4
+    type: PRESET_ACTION
+    command:
+      id: 76abc307-5ae3-4941-8156-498f1f5921b5
+      type: NAVIGATE
+      url: https://www.notion.so/Getting-Started-13870fd8c52b80b79e19c5c2a6ddd782
+  - id: e7927f9f-56cb-42d7-9f59-1518b22bd3c7
+    type: PRESET_ACTION
+    command:
+      id: 9bed2ba8-0180-4a74-84ec-4aef3ffbdf4d
+      type: PAGE_CHECK
+      assertion:
+        type: CONTENT
+        value: Getting Started
+      timeout: 20
+  - id: c25b6540-042c-4921-b166-18a713c8baab
+    type: PRESET_ACTION
+    command:
+      id: d550c015-9a66-4e37-a368-19463b52c79d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the here are the basics line
+  - id: 2034047f-680a-4077-9b86-14f65a865662
+    type: PRESET_ACTION
+    command:
+      id: 9bb0adc8-6212-4eea-bbf4-7fa693d06afe
+      type: PRESS
+      value: Control+A
+  - id: 6e34224d-2371-4e4f-a186-6f545917d499
+    type: PRESET_ACTION
+    command:
+      id: 167cc1aa-4ae5-400a-a441-4f8845970170
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the comment button in the popover
+  - id: 5b30976c-fc74-44c3-89a0-db5a184118ad
+    type: PRESET_ACTION
+    command:
+      id: d605129d-9700-4a59-afaa-8f28e20e30b3
+      clearContent: true
+      delay: 0
+      pressEnter: true
+      type: TYPE
+      value: This is a comment
+  - id: c9adbd3c-98a3-4cf9-a015-121c26c1a43e
+    type: PRESET_ACTION
+    command:
+      id: 3840f862-c520-4b06-851d-5de1fba17030
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: the "this is a comment" comment on the right hand side
+  - id: 9c8a396a-7374-4091-8b2e-0d008bdfdd8d
+    type: PRESET_ACTION
+    command:
+      id: 26bdb120-6ad5-42ed-b7ee-58a0d03e8ef2
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor:
+          the 3 dot button on the top right of the comment on the right
+          hand side of the screen
+  - id: 189f5eec-cac3-404d-b07a-4eeb4c5d2fce
+    type: PRESET_ACTION
+    command:
+      id: 6a8a355c-7699-474d-9ede-3ab68a511e7d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the delete comment option in the dropdown menu on the right hand side
+  - id: 1a367f49-33d7-4936-9e64-74f2b84aeb8a
+    type: PRESET_ACTION
+    command:
+      id: f5acd98f-f3a2-4021-9c42-96583270b0ee
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the delete button

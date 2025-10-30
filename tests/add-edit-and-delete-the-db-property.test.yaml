@@ -1,0 +1,142 @@
+fileType: momentic/test
+id: 29d1d7ab-89ae-466a-bc4f-2f5af18d23dd
+name: add-edit-and-delete-the-db-property
+description: "Create a new database and make sure CRUD with properties works"
+baseUrl: ""
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 0bbe9446-38fe-49c6-946f-8aa97d3e89fb
+  - type: MODULE
+    moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+    id: c9d96f2b-c4e3-4278-ba3c-260fed6f45ab
+  - id: 34a5d418-462a-4477-a91a-7ef0eba28c33
+    type: PRESET_ACTION
+    command:
+      id: d6ec6e0c-93d9-4598-949f-4ee42937b7a1
+      clearContent: false
+      pressEnter: true
+      type: TYPE
+      value: /database
+  - id: 889ec478-108b-45e2-9296-cc80619f0ad2
+    type: PRESET_ACTION
+    command:
+      id: 88755c95-227d-4532-ab7a-a4733ea6b2ad
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: the database header
+  - id: 9d5eaf0d-6413-4c55-8452-a79cfc6b978f
+    type: PRESET_ACTION
+    command:
+      id: 7f33aa69-2f8d-48d8-b63b-68f8eefcbc6f
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the database option menu
+  - id: afd0b6d0-9ced-4828-85cf-b242bfea4500
+    type: PRESET_ACTION
+    command:
+      id: 37ffb556-0013-4f82-8440-95e2ecff7a6c
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the properties menu
+  - id: e96f74c3-dd73-41a5-8d26-cb2bbcf7c33c
+    type: PRESET_ACTION
+    command:
+      id: b5d2bc0a-a57b-4f98-a70c-4de1c998d142
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: add new property
+  - id: c15ac700-7bcd-4f3b-9d3e-7f43369405ce
+    type: PRESET_ACTION
+    command:
+      id: 5f12dd26-c039-417e-9bb8-39db69870a98
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the number property type
+  - id: 557c076b-f99f-4a77-98fb-5d88c32aa9de
+    type: PRESET_ACTION
+    command:
+      id: 7ba4edef-6dae-4452-a094-07d7638b3a03
+      clearContent: true
+      type: TYPE
+      value: Hello world!
+  - id: cdf92a90-d84a-4478-a30b-430416488480
+    type: PRESET_ACTION
+    command:
+      id: 0e4b7cf6-e6ca-4ae3-a7b6-805677999c83
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: on the small "x" to close the properties menu
+  - id: 5a121690-ff4c-4031-8fab-238dc82cb822
+    type: PRESET_ACTION
+    command:
+      id: a5c9ee68-345f-4233-8b40-a9c710193842
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the table view of the database
+  - id: dd1e3580-c784-4fa8-8aab-a07c5bd0b277
+    type: PRESET_ACTION
+    command:
+      id: f0fcb3dd-4ebf-4ab3-a0f6-5e85ada4f770
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the database option menu
+  - id: f1a45e38-9d7c-44b5-ad49-c4463fa312c7
+    type: PRESET_ACTION
+    command:
+      id: 012af09e-3813-4c9e-9e4a-62ab74427ad0
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the properties menu
+  - id: c45c9d1f-b9de-4ee2-a073-69c7e1daaf25
+    type: PRESET_ACTION
+    command:
+      id: 1b9ca213-6ac7-40f2-b85c-7c9d5613543a
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the menu for the "Hello, world!" property
+  - id: 1db25927-6f1e-49d4-884b-c88ad949e655
+    type: PRESET_ACTION
+    command:
+      id: a23f2451-fbc1-40c0-b49c-48677cea1e49
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the delete property option
+  - id: 40c96fa9-2212-40de-89b4-bfe04c48050b
+    type: PRESET_ACTION
+    command:
+      id: 2f1f8f9b-8c3d-4a10-bb4a-a01a4620785c
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the button to confirm deletion
+  - id: a7a2fa12-a551-430d-89a5-66d0e6b98771
+    type: PRESET_ACTION
+    command:
+      id: 2659c196-6249-4094-b814-501a3dc45089
+      type: AI_ASSERTION
+      assertion: there is no property called "Hello, world!"

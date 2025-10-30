@@ -1,0 +1,86 @@
+fileType: momentic/test
+id: 79c2beac-8041-4c92-b3fb-ba2c2e2d72a6
+name: publish-page
+description: null
+baseUrl: "Verify that publishing a page publicly creates a valid link"
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 3aadd95d-497a-4966-a6ca-256c19f3bbe8
+  - id: 501891db-8d60-4fbd-a6b6-3456122a1862
+    type: PRESET_ACTION
+    command:
+      id: 8b1c6bf4-282e-4575-9eac-7aa2fdc3420d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the share link in the top bar
+  - id: 1404d125-b382-49b1-9b9f-22f05e2b10b1
+    type: PRESET_ACTION
+    command:
+      id: 0994684c-e352-4373-b913-e7f6da6e6af6
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the publish tab beside "share" in the top right
+  - id: 603b52ce-becc-4222-acf6-1b042f393662
+    type: PRESET_ACTION
+    command:
+      id: d221c304-a7bb-431c-926e-3617b7bdf2ba
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the blue publish button
+  - id: 9799e065-2d4c-46f1-8ab9-409e3155ae76
+    type: PRESET_ACTION
+    command:
+      id: badb5982-ad57-48e1-9791-155b3a1167df
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the blue view site button beside 'unpublish'
+  - id: 9d7df68b-bdc0-4bcc-b3ce-3cb04583e35f
+    type: PRESET_ACTION
+    command:
+      id: 64f32cd7-395e-47a1-9d9e-98f7c02bead9
+      type: TAB
+      action:
+        type: SUBSTRING
+        substring: impossible-feather
+  - id: 266d7380-9d48-4a3c-b167-cae825c2996c
+    type: PRESET_ACTION
+    command:
+      id: 88f6be48-7692-4517-a559-ac7bf440dc21
+      type: PAGE_CHECK
+      assertion:
+        type: CONTENT
+        value: Getting Started
+  - id: ae10aa05-c631-4319-a541-b02feb801fef
+    type: PRESET_ACTION
+    command:
+      id: 8be72b7f-986d-43f1-95ff-431925f5a4bc
+      type: TAB
+      action:
+        type: INDEX
+        index: "0"
+  - id: 101a9959-efa9-4660-a5c0-85850bae4406
+    type: PRESET_ACTION
+    command:
+      id: 54e47292-28d2-4a92-9cc0-268fa04111bf
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the unpublish button next to view site in the right side

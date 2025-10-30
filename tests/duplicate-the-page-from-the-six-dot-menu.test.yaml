@@ -1,0 +1,86 @@
+fileType: momentic/test
+id: 8ee221a0-829d-4210-b2b0-cedef2d04eab
+name: duplicate-the-page-from-the-six-dot-menu
+description: "Verify that duplicating a page works correctly"
+baseUrl: ""
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 3172ef31-c32f-4af6-94a2-b8d157e7e16d
+  - type: MODULE
+    moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+    id: 6e808a1a-cfb0-465c-b680-e59bc10c85dd
+  - id: 39d2d969-c216-4211-8867-3a3efef6865c
+    type: PRESET_ACTION
+    command:
+      id: 81d506c0-7b0c-4a10-9489-6273eeae965d
+      clearContent: true
+      pressEnter: true
+      type: TYPE
+      value: /page
+  - id: 966fba72-82d6-4ab3-a884-21729a35925e
+    type: PRESET_ACTION
+    command:
+      id: fb2240ed-a3f8-43ab-ad6e-2749b623e4fc
+      clearContent: true
+      type: TYPE
+      value: page to duplicate
+  - id: b4972d89-af1d-4937-8084-0d480b0f7364
+    type: PRESET_ACTION
+    command:
+      id: 3625885c-2c18-4071-8e96-11a4d61d701b
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: the breadcrumbs at the top of the page
+  - id: 341c0089-f7d1-4402-a5a3-503d802ff724
+    type: PRESET_ACTION
+    command:
+      id: 0382093f-50df-4c30-9196-dbb2a1240260
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the {{ env.DOCUMENT_TITLE }} page in the breadcrumbs
+  - id: 6acda7ec-020a-478e-8a1a-9d549e5a8a03
+    type: PRESET_ACTION
+    command:
+      id: b3e4d8b9-e35b-4541-9fc9-e240e7c5dbf0
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: 'the "page to duplicate" page '
+  - id: fbebe6d3-5682-45a9-bdff-8a10ff5289f9
+    type: PRESET_ACTION
+    command:
+      id: 9806fdc2-4c64-487f-9567-4d5bc8c12497
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the six dot menu next to the "page to duplicate"
+  - id: 19b8e969-6dec-469f-93f0-e51c119050a8
+    type: PRESET_ACTION
+    command:
+      id: 17c42b02-071b-4f21-8b4c-6b05be447282
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the duplicate page button
+  - id: 468a6298-3030-4b6d-a100-952d3f9884a4
+    type: PRESET_ACTION
+    command:
+      id: 6f6e76c1-0047-442c-8f5c-972939c30e2b
+      type: AI_ASSERTION
+      assertion: there is a duplicate of "page to duplicate"

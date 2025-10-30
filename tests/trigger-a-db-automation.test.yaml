@@ -1,0 +1,80 @@
+fileType: momentic/test
+id: 35193aea-8628-4d2e-8d3e-7b026b535188
+name: trigger-a-db-automation
+description: "Basic test that DB automations can be created"
+baseUrl: ""
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 5c78d41a-f5d5-479c-ad1b-e09ee72a75d0
+  - type: MODULE
+    moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+    id: 6e1c383f-5df2-488a-83b0-d0ebe286031a
+  - id: c1869163-3a1f-4f59-920c-c49a2bb24f64
+    type: PRESET_ACTION
+    command:
+      id: f0a8cad9-84c3-4644-9567-ada4ab922973
+      clearContent: true
+      pressEnter: true
+      type: TYPE
+      value: /database
+  - id: 7ac7f322-0796-4662-9d6b-7f7dd7947419
+    type: PRESET_ACTION
+    command:
+      id: 153159ce-3625-497c-82de-56b0a0d5ac4f
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the database automations button, that looks like a lightning bolt
+  - id: da11c032-e0e7-40a3-8f7c-749974031ba0
+    type: PRESET_ACTION
+    command:
+      id: fa93fdc9-5273-4da0-b4d6-dcc3f8c15138
+      clearContent: true
+      type: TYPE
+      value: demo automation
+  - id: cc230c9a-3c43-429b-8eaa-efd18e0e7eab
+    type: PRESET_ACTION
+    command:
+      id: 08f11bc3-c868-48ae-b2db-c019c8400f1d
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the add new trigger button
+  - id: 6b9256fa-2032-4e78-be6f-1873b1250ccd
+    type: PRESET_ACTION
+    command:
+      id: 90893b71-96f7-4da0-a4a5-ab2086c10767
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the page added button
+  - id: 5d706d6f-7b70-4356-bbfb-6c96d5cafb69
+    type: PRESET_ACTION
+    command:
+      id: 7906ce4b-81a5-4691-87e3-93e61cdc6729
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the add new action button
+  - id: 86475378-3206-4769-a5bc-8ab8dec8f0d7
+    type: PRESET_ACTION
+    command:
+      id: 065a1aba-25b2-4e8a-8152-0a59a4e6a102
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the send notification to option

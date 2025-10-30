@@ -1,0 +1,75 @@
+fileType: momentic/test
+id: 8c8436d1-ab18-43e1-9552-c8021d582b3e
+name: open-a-db-page-in-side-peek-an-edit-the-title
+description: "Verify that opening a database page in the side peek works correctly"
+baseUrl: ""
+schemaVersion: 1.0.20
+advanced:
+  viewport:
+    width: 1920
+    height: 1080
+  disableAICaching: false
+  browserType: Chromium
+retries: 1
+envs:
+  - name: public-notion
+    default: true
+disabled: false
+labels: []
+steps:
+  - type: MODULE
+    moduleId: c939fcaa-c4b2-4f77-a497-ebc16410bbc8
+    id: 8cb7a56f-1746-477b-bcb4-c49662f54795
+  - type: MODULE
+    moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+    id: 84442844-ee3d-424e-98ab-43b8c17c1192
+  - id: 4d849065-d7ff-491a-839d-9da102dbedd3
+    type: PRESET_ACTION
+    command:
+      id: 82e4a66e-6f01-45ed-acd4-b139cf5f7683
+      clearContent: false
+      pressEnter: true
+      type: TYPE
+      value: /database
+  - id: e6ecd8ac-41fc-4731-88b7-94221bd412c5
+    type: PRESET_ACTION
+    command:
+      id: bd52a225-980b-458f-95ef-1b7365397ce8
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the new page button in name column of the database
+  - id: 6e860137-348a-45f3-ac07-688cddfca7cc
+    type: PRESET_ACTION
+    command:
+      id: 9c540bd4-8d5e-4ad7-adf3-9b23045b7c51
+      clearContent: false
+      pressEnter: true
+      type: TYPE
+      value: Hello, world!
+  - id: aa01845d-783f-4d30-9296-85a4a708c591
+    type: PRESET_ACTION
+    command:
+      id: 9b9c82d1-bbc4-4bfc-87ce-b7570af7b1bc
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the table view of the database
+  - id: 16b779ce-1952-4200-b603-c58660764b26
+    type: PRESET_ACTION
+    command:
+      id: fdd077b5-c8de-4bfd-b106-b0475f79a897
+      type: HOVER
+      target:
+        type: description
+        elementDescriptor: the "Hello, world!" name in the database
+  - id: 4275e60a-4617-4ba7-bb11-c995bc587af7
+    type: PRESET_ACTION
+    command:
+      id: fc4d50a5-c556-4dd3-8971-d18a5c74b7cf
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor:
+          the "open in side peek" button next to hello world. it should
+          not have a property value attribute

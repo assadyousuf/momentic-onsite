@@ -1,0 +1,42 @@
+# OS & editor
+.DS_Store
+.idea/
+.vscode/
+
+# Node/PNPM/Yarn
+node_modules/
+.pnpm-store/
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+.turbo/
+.parcel-cache/
+.cache/
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Coverage
+coverage/
+
+# Vite/TypeScript
+*.tsbuildinfo
+.eslintcache
+.vite/
+
+# Misc
+tmp/
+temp/

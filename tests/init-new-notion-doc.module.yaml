@@ -1,0 +1,41 @@
+fileType: momentic/module
+moduleId: b9b558f4-a845-44e1-8185-736df217eb55
+name: init-new-notion-doc
+description: "Create a new Notion document with a random name"
+enabled: true
+parameters: []
+advanced: {}
+schemaVersion: 1.0.20
+steps:
+  - id: 10722d6d-2fb5-49ad-9589-3b2ea0633b65
+    type: PRESET_ACTION
+    command:
+      id: a87ee27b-ca78-4ed7-b260-e51774f80a0b
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: the home button
+  - id: 287631d9-ca95-4738-a6df-8e6325e75e68
+    type: PRESET_ACTION
+    command:
+      id: b7f32d18-7e99-4252-988f-da77f1456436
+      type: CLICK
+      target:
+        type: description
+        elementDescriptor: new page
+  - id: bc1db810-5cf0-4848-9807-692a84e8b650
+    envKey: DOCUMENT_TITLE
+    type: PRESET_ACTION
+    command:
+      id: bca42403-d568-4d80-aa71-718c6dc3bf24
+      code: return faker.string.alpha(10)
+      type: JAVASCRIPT
+  - id: 8907c8ee-45ff-4ec3-8f92-98e484b44a5d
+    type: PRESET_ACTION
+    command:
+      id: 85b13c3e-c781-41aa-923f-eb4e184a382b
+      clearContent: false
+      pressEnter: true
+      type: TYPE
+      value: |
+        {{ env.DOCUMENT_TITLE }}
