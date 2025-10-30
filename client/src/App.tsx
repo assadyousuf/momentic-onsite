@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import './App.css'
 
 type TestSummary = {
@@ -25,6 +26,11 @@ function fmtDate(iso: string) {
 function App() {
   const [tests, setTests] = useState<TestSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [summary, setSummary] = useState<string | null>(null)
+  const [summaryInfo, setSummaryInfo] = useState<{cached:boolean, model:string, contentHash:string} | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -43,6 +49,43 @@ function App() {
   }, [])
 
   const total = useMemo(() => (tests ? tests.length : 0), [tests])
+
+  function selectTest(id?: string) {
+    if (!id) return
+    setSelectedId(id)
+    setSummary(null)
+    setSummaryInfo(null)
+    setSummaryError(null)
+    setSummaryLoading(true)
+    fetch(`/api/tests/${id}/summary`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error(await r.text())
+        return r.json()
+      })
+      .then((data: {summaryMarkdown: string, model: string, cached: boolean, contentHash: string}) => {
+        setSummary(data.summaryMarkdown)
+        setSummaryInfo({cached: data.cached, model: data.model, contentHash: data.contentHash})
+      })
+      .catch((e) => setSummaryError(String(e)))
+      .finally(() => setSummaryLoading(false))
+  }
+
+  function refreshSummary() {
+    if (!selectedId) return
+    setSummaryLoading(true)
+    setSummaryError(null)
+    fetch(`/api/tests/${selectedId}/summary?refresh=true`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error(await r.text())
+        return r.json()
+      })
+      .then((data: {summaryMarkdown: string, model: string, cached: boolean, contentHash: string}) => {
+        setSummary(data.summaryMarkdown)
+        setSummaryInfo({cached: data.cached, model: data.model, contentHash: data.contentHash})
+      })
+      .catch((e) => setSummaryError(String(e)))
+      .finally(() => setSummaryLoading(false))
+  }
 
   return (
     <div className="container">
@@ -74,7 +117,7 @@ function App() {
               </thead>
               <tbody>
                 {tests.map((t) => (
-                  <tr key={t.filePath}>
+                  <tr key={t.filePath} onClick={() => selectTest(t.id)} style={{ cursor: t.id ? 'pointer' : 'default' }}>
                     <td>
                       <div className="name">{t.name}</div>
                       {t.description && <div className="desc">{t.description}</div>}
@@ -94,6 +137,27 @@ function App() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="summary-panel">
+            <div className="summary-header">
+              <div className="summary-title">AI Summary</div>
+              <div className="summary-actions">
+                <button onClick={refreshSummary} disabled={!selectedId || summaryLoading}>Refresh</button>
+              </div>
+            </div>
+            {!selectedId && <div className="empty">Select a test to see its summary.</div>}
+            {selectedId && summaryLoading && <div className="loading">Summarizing…</div>}
+            {selectedId && summaryError && <div className="error">{summaryError}</div>}
+            {selectedId && !summaryLoading && !summaryError && summary && (
+              <div>
+                <ReactMarkdown>{summary}</ReactMarkdown>
+                {summaryInfo && (
+                  <div className="desc" style={{ marginTop: '0.5rem' }}>
+                    Model: {summaryInfo.model} • Cached: {summaryInfo.cached ? 'Yes' : 'No'}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}

@@ -73,3 +73,22 @@ thead th {
 .loading, .empty, .error {
   padding: 1rem;
 }
+
+.summary-panel {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(127,127,127,0.25);
+  border-radius: 8px;
+}
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.summary-title {
+  font-weight: 600;
+}
+.summary-actions button {
+  font-size: 0.85rem;
+}
