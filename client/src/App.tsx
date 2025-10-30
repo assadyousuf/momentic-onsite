@@ -10,7 +10,6 @@ type TestSummary = {
   updatedAt: string
   stepCount: number
   labels: string[]
-  disabled: boolean
 }
 
 function fmtDate(iso: string) {
@@ -69,7 +68,6 @@ function App() {
                   <th>Created</th>
                   <th>Updated</th>
                   <th>Path</th>
-                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -83,7 +81,6 @@ function App() {
                     <td>{fmtDate(t.createdAt)}</td>
                     <td>{fmtDate(t.updatedAt)}</td>
                     <td><code>{t.filePath}</code></td>
-                    <td>{t.disabled ? <span className="badge danger">disabled</span> : <span className="badge ok">active</span>}</td>
                   </tr>
                 ))}
               </tbody>

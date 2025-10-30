@@ -30,7 +30,6 @@ class TestSummary(BaseModel):
     updatedAt: str
     stepCount: int
     labels: List[str] = []
-    disabled: bool = False
 
 
 def _iso(ts: float) -> str:
@@ -73,7 +72,6 @@ def parse_test(path: pathlib.Path) -> Optional[TestSummary]:
     stat = path.stat()
     rel = str(path.relative_to(ROOT))
     labels = data.get("labels") or []
-    disabled = bool(data.get("disabled") or False)
 
     return TestSummary(
         id=data.get("id"),
@@ -84,7 +82,6 @@ def parse_test(path: pathlib.Path) -> Optional[TestSummary]:
         updatedAt=_iso(stat.st_mtime),
         stepCount=len(steps) if isinstance(steps, list) else 0,
         labels=labels,
-        disabled=disabled,
     )
 
 
