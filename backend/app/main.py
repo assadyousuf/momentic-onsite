@@ -5,10 +5,10 @@ import yaml
 import pathlib
 from typing import List, Optional
 from datetime import datetime
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import hashlib
+from fastapi.responses import StreamingResponse
 import requests
 from dotenv import load_dotenv
 
@@ -18,7 +18,7 @@ TESTS_DIR = pathlib.Path(os.getenv("TESTS_DIR", ROOT / "tests"))
 load_dotenv(ROOT / ".env")
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022").strip()
+ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
 
 app = FastAPI(title="Momentic Test Repo API", version="0.1.0")
 app.add_middleware(
@@ -42,22 +42,9 @@ class TestSummary(BaseModel):
     disabled: bool = False
 
 
-class SummaryResponse(BaseModel):
-    summaryMarkdown: str
-    model: str
-    cached: bool
-    contentHash: str
-
-
 def _iso(ts: float) -> str:
     return datetime.fromtimestamp(ts).astimezone().isoformat()
 
-
-def _get_ctime(stat: os.stat_result) -> float:
-    bt = getattr(stat, "st_birthtime", None)
-    if bt:
-        return float(bt)
-    return float(stat.st_mtime)
 
 
 def list_test_files(base: pathlib.Path) -> List[pathlib.Path]:
@@ -95,13 +82,12 @@ def parse_test(path: pathlib.Path) -> Optional[TestSummary]:
         name=data.get("name") or path.stem,
         description=data.get("description") or "",
         filePath=rel,
-        createdAt=_iso(_get_ctime(stat)),
+        createdAt=_iso(stat.st_ctime),
         updatedAt=_iso(stat.st_mtime),
         stepCount=len(steps) if isinstance(steps, list) else 0,
         labels=labels,
         disabled=disabled,
     )
-
 
 def _list_module_files(base: pathlib.Path) -> List[pathlib.Path]:
     if not base.exists():
@@ -162,7 +148,7 @@ def _step_synopsis(step: dict) -> str:
     return t or "STEP"
 
 
-def _summarize_steps(test: dict, modules_idx: dict, expand: bool = False) -> List[str]:
+def _summarize_steps(test: dict, modules_idx: dict) -> List[str]:
     res: List[str] = []
     steps = test.get("steps") or []
     for s in steps:
@@ -171,47 +157,19 @@ def _summarize_steps(test: dict, modules_idx: dict, expand: bool = False) -> Lis
             mid = s.get("moduleId")
             m = modules_idx.get(mid)
             if not m:
-                res.append(f"MODULE: {mid} (missing)")
+                res.append(f"MISSING MODULE: {mid}")
                 continue
-            mname = m.get("name")
             msteps: List[dict] = m.get("steps") or []
-            if not expand:
-                preview = ", ".join(_step_synopsis(ms) for ms in msteps[:2])
-                if preview:
-                    res.append(f"MODULE: {mname} ({len(msteps)} steps) – {preview}")
-                else:
-                    res.append(f"MODULE: {mname} ({len(msteps)} steps)")
-            else:
-                res.append(f"MODULE: {mname} ({len(msteps)} steps)")
-                for ms in msteps:
-                    res.append("  - " + _step_synopsis(ms))
+            for ms in msteps:
+                res.append(_step_synopsis(ms))
         else:
             res.append(_step_synopsis(s))
     return res
 
-
-SUMMARY_CACHE: dict[tuple[str, str, str], SummaryResponse] = {}
-
-
-def _sha256_bytes(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
+ 
 
 
-def _content_hash(test_path: pathlib.Path, test: dict, modules_idx: dict) -> str:
-    pieces: List[bytes] = []
-    pieces.append(test_path.read_bytes())
-    for s in test.get("steps") or []:
-        if (s.get("type") or "").upper() == "MODULE":
-            mid = s.get("moduleId")
-            m = modules_idx.get(mid)
-            if m and m.get("raw"):
-                pieces.append(m["raw"].encode("utf-8"))
-    return _sha256_bytes(b"\n".join(pieces))
-
-
-def _anthropic_summarize(test: dict, synopsis: List[str]) -> str:
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=400, detail="Missing ANTHROPIC_API_KEY in environment")
+def _build_summary_prompt(test: dict, synopsis: List[str]) -> tuple[str, str]:
     system = (
         "You summarize Momentic end-to-end UI tests for developers. "
         "Be concise and factual. Output sections: Purpose, Preconditions, Main Flow, Assertions, Side Effects, Risks."
@@ -228,31 +186,53 @@ def _anthropic_summarize(test: dict, synopsis: List[str]) -> str:
     ]
     lines += [f"- {x}" for x in synopsis[:120]]
     prompt = "\n".join(lines)
+    return system, prompt
 
+
+def _anthropic_stream(system: str, prompt: str):
     url = "https://api.anthropic.com/v1/messages"
     headers = {
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
+        "accept": "text/event-stream",
     }
     body = {
         "model": ANTHROPIC_MODEL,
-        "max_tokens": 600,
         "system": system,
         "messages": [
             {"role": "user", "content": prompt},
         ],
+        "stream": True,
     }
-    r = requests.post(url, headers=headers, data=json.dumps(body), timeout=60)
-    if r.status_code >= 400:
-        raise HTTPException(status_code=502, detail=f"Anthropic error: {r.text[:500]}")
-    data = r.json()
-    content = data.get("content") or []
-    text_blocks = [b.get("text") for b in content if isinstance(b, dict) and b.get("type") == "text" and b.get("text")]
-    summary = "\n\n".join(text_blocks).strip()
-    if not summary:
-        summary = "(No summary returned)"
-    return summary
+    with requests.post(url, headers=headers, data=json.dumps(body), stream=True, timeout=60) as r:
+        if r.status_code >= 400:
+            msg = (r.text or "Anthropic error").strip()
+            yield f"event: error\ndata: {json.dumps(msg)}\n\n"
+            return
+        for raw in r.iter_lines(decode_unicode=True):
+            if not raw:
+                continue
+            if raw.startswith("data: "):
+                try:
+                    payload = json.loads(raw[6:])
+                except Exception:
+                    continue
+                etype = payload.get("type") or payload.get("event")
+                if etype == "content_block_delta":
+                    delta = payload.get("delta") or {}
+                    if isinstance(delta, dict) and delta.get("type") == "text_delta":
+                        text = delta.get("text") or ""
+                        if text:
+                            yield f"data: {json.dumps(text)}\n\n"
+                elif etype == "message_stop":
+                    yield "event: done\ndata: done\n\n"
+                    return
+                elif etype == "error":
+                    err = payload.get("error") or payload
+                    yield f"event: error\ndata: {json.dumps(str(err))}\n\n"
+                    return
+        yield "event: done\ndata: done\n\n"
 
 
 @app.get("/health")
@@ -272,29 +252,24 @@ def get_tests():
     return tests
 
 
-@app.get("/api/tests/{test_id}/summary", response_model=SummaryResponse)
-def get_test_summary(
-    test_id: str,
-    expand: str = Query("collapsed", enum=["collapsed", "inline"]),
-    refresh: bool = False,
-):
+@app.get("/api/tests/{test_id}/summary/stream")
+def stream_test_summary(test_id: str):
+    if not ANTHROPIC_API_KEY:
+        raise HTTPException(status_code=400, detail="Missing ANTHROPIC_API_KEY in environment")
+
     test_path = _find_test_file_by_id(test_id)
     if not test_path:
         raise HTTPException(status_code=404, detail="Test not found")
 
     test_doc = _read_yaml(test_path)
-    allow_cache = not bool(((test_doc.get("advanced") or {}).get("disableAICaching")))
     modules_idx = _build_module_index()
-    synopsis = _summarize_steps(test_doc, modules_idx, expand == "inline")
-    c_hash = _content_hash(test_path, test_doc, modules_idx)
-    cache_key = (test_id, c_hash, expand)
+    synopsis = _summarize_steps(test_doc, modules_idx)
+    system, prompt = _build_summary_prompt(test_doc, synopsis)
 
-    if allow_cache and not refresh and cache_key in SUMMARY_CACHE:
-        cached = SUMMARY_CACHE[cache_key]
-        return cached
+    def event_stream():
+        # Optional SSE retry suggestion
+        yield "retry: 300\n\n"
+        for chunk in _anthropic_stream(system, prompt):
+            yield chunk
 
-    summary_md = _anthropic_summarize(test_doc, synopsis)
-    resp = SummaryResponse(summaryMarkdown=summary_md, model=ANTHROPIC_MODEL, cached=False, contentHash=c_hash)
-    if allow_cache:
-        SUMMARY_CACHE[cache_key] = SummaryResponse(**resp.dict(), cached=True)
-    return resp
+    return StreamingResponse(event_stream(), media_type="text/event-stream")

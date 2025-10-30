@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import './App.css'
 
@@ -28,9 +28,10 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [summary, setSummary] = useState<string | null>(null)
-  const [summaryInfo, setSummaryInfo] = useState<{cached:boolean, model:string, contentHash:string} | null>(null)
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [summaryError, setSummaryError] = useState<string | null>(null)
+  const [streaming, setStreaming] = useState(false)
+  const evtRef = useRef<EventSource | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -53,39 +54,41 @@ function App() {
   function selectTest(id?: string) {
     if (!id) return
     setSelectedId(id)
-    setSummary(null)
-    setSummaryInfo(null)
+    setSummary("")
     setSummaryError(null)
     setSummaryLoading(true)
-    fetch(`/api/tests/${id}/summary`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error(await r.text())
-        return r.json()
-      })
-      .then((data: {summaryMarkdown: string, model: string, cached: boolean, contentHash: string}) => {
-        setSummary(data.summaryMarkdown)
-        setSummaryInfo({cached: data.cached, model: data.model, contentHash: data.contentHash})
-      })
-      .catch((e) => setSummaryError(String(e)))
-      .finally(() => setSummaryLoading(false))
+    // Close any existing stream
+    evtRef.current?.close()
+    const es = new EventSource(`/api/tests/${id}/summary/stream`)
+    evtRef.current = es
+    setStreaming(true)
+    es.onmessage = (ev) => {
+      try {
+        const chunk = JSON.parse(ev.data) as string
+        setSummary((prev) => (prev ?? "") + chunk)
+        setSummaryLoading(false)
+      } catch {
+        // Ignore parse errors
+      }
+    }
+    es.addEventListener('done', () => {
+      setStreaming(false)
+      es.close()
+    })
+    es.addEventListener('error', (ev) => {
+      setStreaming(false)
+      setSummaryLoading(false)
+      setSummaryError(typeof ev === 'string' ? ev : 'Streaming error')
+      es.close()
+    })
   }
 
-  function refreshSummary() {
-    if (!selectedId) return
-    setSummaryLoading(true)
-    setSummaryError(null)
-    fetch(`/api/tests/${selectedId}/summary?refresh=true`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error(await r.text())
-        return r.json()
-      })
-      .then((data: {summaryMarkdown: string, model: string, cached: boolean, contentHash: string}) => {
-        setSummary(data.summaryMarkdown)
-        setSummaryInfo({cached: data.cached, model: data.model, contentHash: data.contentHash})
-      })
-      .catch((e) => setSummaryError(String(e)))
-      .finally(() => setSummaryLoading(false))
-  }
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      evtRef.current?.close()
+    }
+  }, [evtRef])
 
   return (
     <div className="container">
@@ -141,9 +144,7 @@ function App() {
           <div className="summary-panel">
             <div className="summary-header">
               <div className="summary-title">AI Summary</div>
-              <div className="summary-actions">
-                <button onClick={refreshSummary} disabled={!selectedId || summaryLoading}>Refresh</button>
-              </div>
+              {streaming && <div className="desc">Streaming…</div>}
             </div>
             {!selectedId && <div className="empty">Select a test to see its summary.</div>}
             {selectedId && summaryLoading && <div className="loading">Summarizing…</div>}
@@ -151,11 +152,6 @@ function App() {
             {selectedId && !summaryLoading && !summaryError && summary && (
               <div>
                 <ReactMarkdown>{summary}</ReactMarkdown>
-                {summaryInfo && (
-                  <div className="desc" style={{ marginTop: '0.5rem' }}>
-                    Model: {summaryInfo.model} • Cached: {summaryInfo.cached ? 'Yes' : 'No'}
-                  </div>
-                )}
               </div>
             )}
           </div>
